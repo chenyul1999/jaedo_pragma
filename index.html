@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>黑胶音乐合辑</title>
+  <style>
+    body {
+      background: #D5C2DE;
+      color: #333;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+    }
+    .cover {
+      width: 300px;
+      height: 300px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .vinyl-wrapper {
+      position: relative;
+      width: 250px;
+      height: 250px;
+    }
+    .vinyl {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: transform 0.5s ease;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    .rotating {
+      animation: spin 3s linear infinite;
+    }
+    .tonearm {
+      position: absolute;
+      top: 0px; /* 需要调整初始位置的偏移 */
+      left: 240px; /* 需要调整初始位置的偏移 */
+      width: 140px;
+      height: 8px;
+      background: linear-gradient(to right, #B7A4CA, #AE8CBE);
+      border-radius: 5px;
+      transform-origin: 0 0;
+      transform: rotate(190deg); /* 旋转180度 */
+      transition: transform 1s ease;
+    }
+    .tonearm::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -4px;
+      width: 10px;
+      height: 12px;
+      background: #AE8CBE;
+      border-radius: 50%;
+    }
+    .tonearm.playing {
+      transform: rotate(160deg); /* 播放时将唱针调整到正确位置 */
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .controls {
+      margin-top: 30px;
+    }
+    button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="cover" id="coverA" style="background-image: url('cover_A.png');"></div>
+    <div class="vinyl-wrapper">
+      <div class="vinyl" id="vinyl"></div>
+      <div class="tonearm" id="tonearm"></div>
+    </div>
+    <div class="cover" id="coverB" style="background-image: url('cover_B.png');"></div>
+  </div>
+
+  <div class="controls">
+    <button id="togglePlay"> 播放 / 停止</button>
+    <button id="switchSide"> 切换 A/B 面</button>
+  </div>
+
+  <audio id="player" src="track_A.mp3"></audio>
+  <audio id="needleSound" src="needle_drop.mp3"></audio>
+
+  <script>
+    const vinyl = document.getElementById('vinyl');
+    const tonearm = document.getElementById('tonearm');
+    const togglePlay = document.getElementById('togglePlay');
+    const switchSide = document.getElementById('switchSide');
+    const player = document.getElementById('player');
+    const needleSound = document.getElementById('needleSound');
+
+    const stickers = {
+      A: 'sticker_A.png',
+      B: 'sticker_B.png'
+    };
+    const tracks = {
+      A: 'track_A.mp3',
+      B: 'track_B.mp3'
+    };
+
+    let currentSide = 'A';
+    let isPlaying = false;
+
+    function updateVinyl() {
+      vinyl.style.backgroundImage = `url(${stickers[currentSide]})`;
+      player.src = tracks[currentSide];
+    }
+
+    togglePlay.addEventListener('click', () => {
+      if (isPlaying) {
+        player.pause();
+        vinyl.classList.remove('rotating');
+        tonearm.classList.remove('playing');
+      } else {
+        needleSound.currentTime = 0;
+        needleSound.play();
+        setTimeout(() => {
+          player.play();
+          vinyl.classList.add('rotating');
+          tonearm.classList.add('playing');
+        }, 600);
+      }
+      isPlaying = !isPlaying;
+    });
+
+    switchSide.addEventListener('click', () => {
+      if (isPlaying) {
+        player.pause();
+        vinyl.classList.remove('rotating');
+        tonearm.classList.remove('playing');
+        isPlaying = false;
+      }
+      currentSide = currentSide === 'A' ? 'B' : 'A';
+      updateVinyl();
+    });
+
+    // 初始化
+    updateVinyl();
+  </script>
+</body>
+</html>
